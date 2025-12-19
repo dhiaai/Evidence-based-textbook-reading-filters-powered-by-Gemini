@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Study Skills AI{% endblock %}</title>
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+
+            /* Filter Colors */
+            --blue: #4facfe;
+            --yellow: #fddb92;
+            --green: #43e97b;
+            --grey: #4b6cb7;
+            --purple: #a18cd1;
+            --orange: #ff9a9e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(-45deg, var(--bg-1, #1e3c72), var(--bg-2, #2a5298), var(--bg-3, #2c3e50));
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            transition: background 1s ease;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Dynamic Theme Variables */
+        body.theme-blue {
+            --bg-1: #1e3c72;
+            --bg-2: #2a5298;
+            --bg-3: #2c3e50;
+        }
+
+        body.theme-yellow {
+            --bg-1: #f5af19;
+            --bg-2: #f12711;
+            --bg-3: #fddb92;
+        }
+
+        /* Warmer sunset chic */
+        body.theme-green {
+            --bg-1: #134e5e;
+            --bg-2: #71b280;
+            --bg-3: #2b5876;
+        }
+
+        body.theme-grey {
+            --bg-1: #232526;
+            --bg-2: #414345;
+            --bg-3: #2c3e50;
+        }
+
+        body.theme-purple {
+            --bg-1: #4e54c8;
+            --bg-2: #8f94fb;
+            --bg-3: #a18cd1;
+        }
+
+        body.theme-orange {
+            --bg-1: #ffb347;
+            --bg-2: #ffcc33;
+            --bg-3: #fc4a1a;
+        }
+
+        .glass-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            border-left: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 30px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            padding: 50px;
+            margin: 40px auto;
+            max-width: 1200px;
+            width: 90%;
+            transition: transform 0.3s ease;
+        }
+
+        .glass-container:hover {
+            box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo span {
+            background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-left: 30px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: white;
+        }
+
+        h1,
+        h2,
+        h3 {
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 3em;
+            font-weight: 700;
+            background: linear-gradient(to right, #fff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .file-upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+            background: rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .file-upload-area:hover,
+        .file-upload-area.dragover {
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .file-upload-area p {
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            margin-bottom: 20px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Filter-specific accents */
+        body.theme-blue .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        body.theme-yellow .btn-primary {
+            background: linear-gradient(135deg, #fddb92 0%, #d1fdff 100%);
+            color: #333;
+        }
+
+        body.theme-green .btn-primary {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: #333;
+        }
+
+        body.theme-grey .btn-primary {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+        }
+
+        body.theme-purple .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body.theme-orange .btn-primary {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            color: #333;
+        }
+
+        .result-box {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 30px;
+            line-height: 1.6;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .result-box.visible {
+            display: block;
+            opacity: 1;
+        }
+
+        .result-box h3 {
+            margin-top: 20px;
+            color: #2c3e50;
+        }
+
+        .result-box ul,
+        .result-box ol {
+            margin-left: 20px;
+        }
+
+        .result-box li {
+            margin-bottom: 8px;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="{% block theme_class %}{% endblock %}">
+
+    <nav class="navbar">
+        <a href="/" class="logo"><span>StudyGenius</span></a>
+        <div class="nav-links">
+            <a href="/">Dashboard</a>
+            <a href="/filter/blue">Meta</a>
+            <a href="/filter/yellow">Memory</a>
+            <a href="/filter/green">Load</a>
+            <a href="/filter/grey">Time</a>
+            <a href="/filter/purple">Research</a>
+            <a href="/filter/orange">Fun</a>
+        </div>
+    </nav>
+
+    <div class="glass-container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        // Common JS for file uploads
+        function setupFileUpload(fileInputId, textAreaId) {
+            const fileInput = document.getElementById(fileInputId);
+            const textArea = document.getElementById(textAreaId);
+            const dropZone = fileInput.closest('.file-upload-area');
+
+            if (!fileInput || !dropZone) return;
+
+            dropZone.addEventListener('click', () => fileInput.click());
+
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length) handleFile(files[0]);
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (fileInput.files.length) handleFile(fileInput.files[0]);
+            });
+
+            function handleFile(file) {
+                if (file.type === 'application/pdf') {
+                    // Upload PDF
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    // Show loading state in text area or similar
+                    textArea.placeholder = "Extracting text from PDF...";
+
+                    fetch('/extract_pdf', {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                textArea.value = data.text;
+                            } else {
+                                alert('Error extracting PDF: ' + data.error);
+                            }
+                        })
+                        .catch(e => alert('Upload failed: ' + e));
+
+                } else if (file.type.startsWith('text/')) {
+                    // Read text file directly
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        if (textArea) textArea.value = e.target.result;
+                    };
+                    reader.readAsText(file);
+                } else {
+                    alert('Please upload a PDF or text file.');
+                }
+            }
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

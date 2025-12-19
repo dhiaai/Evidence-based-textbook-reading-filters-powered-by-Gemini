@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Memory Mastery | Study Skills AI{% endblock %}
+{% block theme_class %}theme-yellow{% endblock %}
+
+{% block content %}
+<div class="filter-header">
+    <a href="/" class="back-link">← Dashboard</a>
+    <h1>💛 Memory Mastery</h1>
+    <p>Test your recall with AI-generated fill-in-the-blank exercises.</p>
+</div>
+
+<div class="input-area">
+    <div class="file-upload-area">
+        <input type="file" id="file-input" hidden accept=".txt,.pdf">
+        <span style="font-size: 3em;">📄</span>
+        <p><strong>Click or Drag to Upload PDF/Text</strong></p>
+    </div>
+
+    <textarea id="study-text" placeholder="Paste your study material here..."></textarea>
+
+    <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+        <h3 style="margin-bottom: 10px; color: var(--yellow);">Select Difficulty:</h3>
+        <label style="margin-right: 20px; cursor: pointer;">
+            <input type="radio" name="mode" value="hint" checked> <strong>Hint Mode</strong> (First letter visible)
+        </label>
+        <label style="cursor: pointer;">
+            <input type="radio" name="mode" value="hard"> <strong>Hard Mode</strong> (Full blanks)
+        </label>
+    </div>
+
+    <button id="process-btn" class="btn btn-primary" style="width: 100%;">Generate Memory Test</button>
+</div>
+
+<div id="loading" class="loading">
+    <div class="spinner" style="border-top-color: var(--yellow);"></div>
+    <p>Creating memory exercises...</p>
+</div>
+
+<div id="results" class="result-box"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    setupFileUpload('file-input', 'study-text');
+
+    document.getElementById('process-btn').addEventListener('click', async function () {
+        const text = document.getElementById('study-text').value.trim();
+        if (!text) { alert('Please provide some text first!'); return; }
+
+        const mode = document.querySelector('input[name="mode"]:checked').value;
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const btn = this;
+
+        loading.style.display = 'block';
+        results.classList.remove('visible');
+        btn.disabled = true;
+
+        try {
+            const response = await fetch('/apply_filter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    text: text,
+                    filter: 'yellow',
+                    mode: mode
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                renderYellowResults(data.result);
+            } else {
+                alert('Error: ' + data.error);
+            }
+        } catch (e) {
+            alert('Error: ' + e);
+        } finally {
+            loading.style.display = 'none';
+            btn.disabled = false;
+        }
+    });
+
+    function renderYellowResults(result) {
+        let html = `<h2>📝 Memory Exercises</h2>`;
+        html += `<p class="description">Difficulty: ${result.mode.toUpperCase()}</p>`;
+
+        for (const [level, exercise] of Object.entries(result.exercises)) {
+            html += `<div style="background: #fff; border: 1px solid #ddd; padding: 20px; border-radius: 12px; margin-top: 20px;">
+                <h3 style="color: #d4ac0d; border-bottom: 2px solid #f9e79f; padding-bottom: 10px; margin-bottom: 15px;">${level.charAt(0).toUpperCase() + level.slice(1)}</h3>
+                <div style="line-height: 2; font-size: 1.1em; white-space: pre-wrap;">${exercise.text}</div>
+                
+                <details style="margin-top: 20px; cursor: pointer;">
+                    <summary style="font-weight: bold; color: #555;">Show Answer Key</summary>
+                    <ol style="margin-top: 10px; background: #f9f9f9; padding: 15px 15px 15px 35px; border-radius: 8px;">
+                        ${exercise.blanks.map(b => `<li><strong>${b.answer}</strong> ${result.mode === 'hint' ? `(Hint: ${b.hint})` : ''}</li>`).join('')}
+                    </ol>
+                </details>
+            </div>`;
+        }
+
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = html;
+        resultsDiv.classList.add('visible');
+        resultsDiv.scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Study Skills AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 60px;
+        position: relative;
+    }
+
+    .dashboard-header h1 {
+        font-weight: 300;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        font-size: 2.5em;
+        margin-bottom: 15px;
+        background: linear-gradient(to right, #fff, #cbd5e1);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .dashboard-header p {
+        font-size: 1.1em;
+        font-weight: 300;
+        color: rgba(255, 255, 255, 0.6);
+        max-width: 500px;
+        margin: 0 auto;
+        letter-spacing: 0.5px;
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        padding: 10px;
+    }
+
+    .filter-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 40px 30px;
+        text-align: center;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+    }
+
+    .filter-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.1), transparent 60%);
+        opacity: 0;
+        transition: opacity 0.5s;
+    }
+
+    .filter-card:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .filter-card:hover::before {
+        opacity: 1;
+    }
+
+    .filter-icon {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.05);
+        transition: all 0.5s ease;
+    }
+
+    .filter-icon svg {
+        width: 30px;
+        height: 30px;
+        stroke-width: 1.5;
+        transition: all 0.5s ease;
+    }
+
+    .filter-card:hover .filter-icon {
+        transform: scale(1.1);
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .filter-card h3 {
+        font-size: 1.2em;
+        font-weight: 500;
+        margin-bottom: 12px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .filter-card p {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.9em;
+        line-height: 1.6;
+        font-weight: 300;
+    }
+
+    /* Card Accents - minimalist colored borders/glows */
+    .card-blue:hover .filter-icon {
+        color: var(--blue);
+        box-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
+    }
+
+    .card-yellow:hover .filter-icon {
+        color: var(--yellow);
+        box-shadow: 0 0 20px rgba(253, 219, 146, 0.3);
+    }
+
+    .card-green:hover .filter-icon {
+        color: var(--green);
+        box-shadow: 0 0 20px rgba(67, 233, 123, 0.3);
+    }
+
+    .card-grey:hover .filter-icon {
+        color: var(--grey);
+        box-shadow: 0 0 20px rgba(117, 137, 184, 0.3);
+    }
+
+    .card-purple:hover .filter-icon {
+        color: var(--purple);
+        box-shadow: 0 0 20px rgba(161, 140, 209, 0.3);
+    }
+
+    .card-orange:hover .filter-icon {
+        color: var(--orange);
+        box-shadow: 0 0 20px rgba(255, 154, 158, 0.3);
+    }
+
+    .card-blue h3 {
+        color: var(--blue);
+    }
+
+    .card-yellow h3 {
+        color: var(--yellow);
+    }
+
+    .card-green h3 {
+        color: var(--green);
+    }
+
+    .card-grey h3 {
+        color: var(--grey);
+    }
+
+    .card-purple h3 {
+        color: var(--purple);
+    }
+
+    .card-orange h3 {
+        color: var(--orange);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1>StudyGenius Board</h1>
+    <p>Select a cognitive filter to elevate your learning session.</p>
+</div>
+
+<div class="filter-grid">
+    <!-- Blue: Metacognition (Mind/Brain) -->
+    <a href="/filter/blue" class="filter-card card-blue">
+        <div class="filter-icon">
+            <svg viewBox="0 0 24 24" fill="none" class="icon" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" opacity="0.5" />
+                <path d="M12 6v6l4 2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </div>
+        <h3>Metacognition</h3>
+        <p>Deepen understanding with Bloom's Taxonomy.</p>
+    </a>
+
+    <!-- Yellow: Memory (Lightning/Flash) -->
+    <a href="/filter/yellow" class="filter-card card-yellow">
+        <div class="filter-icon">
+            <svg viewBox="0 0 24 24" fill="none" class="icon" stroke="currentColor" stroke-width="1.5">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </div>
+        <h3>Memory Mastery</h3>
+        <p>Active recall with generated exercises.</p>
+    </a>
+
+    <!-- Green: Cognitive Load (Layers/Stack) -->
+    <a href="/filter/green" class="filter-card card-green">
+        <div class="filter-icon">
+            <svg viewBox="0 0 24 24" fill="none" class="icon" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+        </div>
+        <h3>Cognitive Load</h3>
+        <p>Simplify complex topics into chunks.</p>
+    </a>
+
+    <!-- Grey: Time Blocking (Clock/Timer) -->
+    <a href="/filter/grey" class="filter-card card-grey">
+        <div class="filter-icon">
+            <svg viewBox="0 0 24 24" fill="none" class="icon" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </div>
+        <h3>Time Blocking</h3>
+        <p>Focus sessions with unlock protocols.</p>
+    </a>
+
+    <!-- Purple: Research (Search/Globe) -->
+    <a href="/filter/purple" class="filter-card card-purple">
+        <div class="filter-icon">
+            <svg viewBox="0 0 24 24" fill="none" class="icon" stroke="currentColor" stroke-width="1.5">
+                <circle cx="11" cy="11" r="8" />
+                <path d="M21 21l-4.35-4.35" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </div>
+        <h3>Research Helper</h3>
+        <p>Curated resources and materials.</p>
+    </a>
+
+    <!-- Orange: Boredom Buster (Sparkle/Star) -->
+    <a href="/filter/orange" class="filter-card card-orange">
+        <div class="filter-icon">
+            <svg viewBox="0 0 24 24" fill="none" class="icon" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                    stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </div>
+        <h3>Boredom Buster</h3>
+        <p>Engage with humor and sarcasm.</p>
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Research Helper | Study Skills AI{% endblock %}
+{% block theme_class %}theme-purple{% endblock %}
+
+{% block content %}
+<div class="filter-header">
+    <a href="/" class="back-link">← Dashboard</a>
+    <h1>💜 Research Helper</h1>
+    <p>Find related resources, search queries, and videos to expand your knowledge.</p>
+</div>
+
+<div class="input-area">
+    <div class="file-upload-area">
+        <input type="file" id="file-input" hidden accept=".txt,.pdf">
+        <span style="font-size: 3em;">📄</span>
+        <p><strong>Click or Drag to Upload PDF/Text</strong></p>
+    </div>
+
+    <textarea id="study-text" placeholder="Paste your study material here..."></textarea>
+
+    <button id="process-btn" class="btn btn-primary" style="width: 100%;">Find Resources</button>
+</div>
+
+<div id="loading" class="loading">
+    <div class="spinner" style="border-top-color: var(--purple);"></div>
+    <p>Searching the knowledge base...</p>
+</div>
+
+<div id="results" class="result-box"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    setupFileUpload('file-input', 'study-text');
+
+    document.getElementById('process-btn').addEventListener('click', async function () {
+        const text = document.getElementById('study-text').value.trim();
+        if (!text) { alert('Please provide some text first!'); return; }
+
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const btn = this;
+
+        loading.style.display = 'block';
+        results.classList.remove('visible');
+        btn.disabled = true;
+
+        try {
+            const response = await fetch('/apply_filter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    text: text,
+                    filter: 'purple'
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                renderPurpleResults(data.result);
+            } else {
+                alert('Error: ' + data.error);
+            }
+        } catch (e) {
+            alert('Error: ' + e);
+        } finally {
+            loading.style.display = 'none';
+            btn.disabled = false;
+        }
+    });
+
+    function renderPurpleResults(result) {
+        let html = `<h2>🔍 Research Dashboard</h2>`;
+
+        html += `<h3>🔑 Key Topics</h3>`;
+        html += `<div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 25px;">`;
+        result.topics.forEach(t => {
+            html += `<span style="background: rgba(161, 140, 209, 0.2); color: #667eea; padding: 5px 15px; border-radius: 20px; font-weight: bold;">${t}</span>`;
+        });
+        html += `</div>`;
+
+        html += `<h3>🌐 Recommended Searches</h3>`;
+        result.search_queries.forEach(q => {
+            html += `
+             <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <p style="margin-bottom: 10px;"><strong>Query:</strong> ${q.basic}</p>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a href="https://www.google.com/search?q=${encodeURIComponent(q.basic)}" target="_blank" class="btn" style="padding: 5px 15px; font-size: 0.9em; background: #ea4335; color: white;">Google</a>
+                    <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(q.video)}" target="_blank" class="btn" style="padding: 5px 15px; font-size: 0.9em; background: #c4302b; color: white;">YouTube</a>
+                    <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(q.basic)}" target="_blank" class="btn" style="padding: 5px 15px; font-size: 0.9em; background: #4285f4; color: white;">Scholar</a>
+                </div>
+             </div>`;
+        });
+
+        html += `<h3>📅 Suggested Research Plan</h3>`;
+        result.research_plan.phases.forEach(phase => {
+            html += `
+            <div style="margin-bottom: 15px; border-left: 3px solid var(--purple); padding-left: 15px;">
+                <h4 style="color: var(--purple);">${phase.name} <span style="font-weight: normal; font-size: 0.9em; color: #888;">(${phase.time})</span></h4>
+                <ul style="margin-top: 5px; color: #555;">${phase.activities.map(a => `<li>${a}</li>`).join('')}</ul>
+            </div>`;
+        });
+
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = html;
+        resultsDiv.classList.add('visible');
+        resultsDiv.scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+{% endblock %}

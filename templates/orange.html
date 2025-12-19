@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Boredom Buster | Study Skills AI{% endblock %}
+{% block theme_class %}theme-orange{% endblock %}
+
+{% block content %}
+<div class="filter-header">
+    <a href="/" class="back-link">← Dashboard</a>
+    <h1>🧡 Boredom Buster</h1>
+    <p>Convert boring text into fun, sarcastic, or silly content to keep you awake!</p>
+</div>
+
+<div class="input-area">
+    <div class="file-upload-area">
+        <input type="file" id="file-input" hidden accept=".txt,.pdf">
+        <span style="font-size: 3em;">📄</span>
+        <p><strong>Click or Drag to Upload PDF/Text</strong></p>
+    </div>
+
+    <textarea id="study-text" placeholder="Paste boring study material here..."></textarea>
+
+    <button id="process-btn" class="btn btn-primary" style="width: 100%;">Make it Fun! 🎪</button>
+</div>
+
+<div id="loading" class="loading">
+    <div class="spinner" style="border-top-color: var(--orange);"></div>
+    <p>Sprinkling some fun...</p>
+</div>
+
+<div id="results" class="result-box"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    setupFileUpload('file-input', 'study-text');
+
+    document.getElementById('process-btn').addEventListener('click', async function () {
+        const text = document.getElementById('study-text').value.trim();
+        if (!text) { alert('Please provide some text first!'); return; }
+
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const btn = this;
+
+        loading.style.display = 'block';
+        results.classList.remove('visible');
+        btn.disabled = true;
+
+        try {
+            const response = await fetch('/apply_filter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    text: text,
+                    filter: 'orange'
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                renderOrangeResults(data.result);
+            } else {
+                alert('Error: ' + data.error);
+            }
+        } catch (e) {
+            alert('Error: ' + e);
+        } finally {
+            loading.style.display = 'none';
+            btn.disabled = false;
+        }
+    });
+
+    function renderOrangeResults(result) {
+        let html = `<h2>🎪 The Fun Version</h2>`;
+
+        html += `<h3>🤡 Silly Translation</h3>`;
+        html += `<div style="background: #fff0f0; padding: 20px; border-radius: 12px; font-family: 'Comic Sans MS', cursive, sans-serif; line-height: 1.6;">${result.silly_text.replace(/\n/g, '<br>')}</div>`;
+
+        html += `<h3>🤣 Jokes</h3>`;
+        result.jokes.forEach(joke => {
+            html += `
+            <div style="background: white; border-left: 4px solid var(--orange); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <div><strong>Q:</strong> ${joke.setup}</div>
+                <div style="color: var(--orange); font-weight: bold; margin-top: 5px;">A: ${joke.punchline}</div>
+            </div>`;
+        });
+
+        html += `<h3>🙄 Sarcastic Takes</h3>`;
+        result.sarcastic_commentary.forEach(c => {
+            html += `
+            <div style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+                <em style="color: #666;">"${c.original}"</em><br>
+                <strong>→ ${c.sarcasm}</strong>
+            </div>`;
+        });
+
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = html;
+        resultsDiv.classList.add('visible');
+        resultsDiv.scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+{% endblock %}

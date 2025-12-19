@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Time Blocking | Study Skills AI{% endblock %}
+{% block theme_class %}theme-grey{% endblock %}
+
+{% block content %}
+<div class="filter-header">
+    <a href="/" class="back-link">← Dashboard</a>
+    <h1>⚫ Time Blocking Session</h1>
+    <p>Lock your focus. You must answer a question to unlock the session!</p>
+</div>
+
+<div class="input-area" id="setup-area">
+    <div class="file-upload-area">
+        <input type="file" id="file-input" hidden accept=".txt,.pdf">
+        <span style="font-size: 3em;">📄</span>
+        <p><strong>Click or Drag to Upload PDF/Text</strong></p>
+    </div>
+
+    <textarea id="study-text" placeholder="Paste study material here..."></textarea>
+
+    <div style="margin-bottom: 20px;">
+        <label style="color: white; font-weight: bold;">Session Duration (minutes):</label>
+        <input type="number" id="duration" value="25" min="5" max="120"
+            style="padding: 10px; border-radius: 8px; border: none; width: 100px; text-align: center; margin-left: 10px;">
+    </div>
+
+    <button id="start-btn" class="btn btn-primary" style="width: 100%;">Start Locked Session</button>
+</div>
+
+<div id="active-session" style="display: none; text-align: center; color: white;">
+    <div class="timer" id="timer-display" style="font-size: 4em; font-weight: bold; margin: 30px 0;">25:00</div>
+    <p>Focus Mode Active. Good luck!</p>
+
+    <div id="unlock-section"
+        style="margin-top: 40px; background: rgba(255,255,255,0.1); padding: 30px; border-radius: 20px;">
+        <h3>🔐 Unlock Session</h3>
+        <p>Answer this question to finish early:</p>
+        <div id="unlock-question" style="font-size: 1.2em; font-weight: bold; margin: 20px 0; color: #a5b4fc;">...</div>
+
+        <input type="text" id="unlock-answer" placeholder="Your answer..."
+            style="width: 100%; padding: 15px; border-radius: 10px; border: none; margin-bottom: 20px;">
+        <button id="unlock-btn" class="btn btn-primary">Submit Answer</button>
+        <p id="unlock-msg" style="margin-top: 10px;"></p>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    setupFileUpload('file-input', 'study-text');
+
+    let timerInterval;
+
+    document.getElementById('start-btn').addEventListener('click', async function () {
+        const text = document.getElementById('study-text').value.trim();
+        const duration = parseInt(document.getElementById('duration').value);
+
+        if (!text) { alert('Please provide study text first!'); return; }
+
+        this.disabled = true;
+        this.innerText = "Generating Session...";
+
+        try {
+            const response = await fetch('/start_study_session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    text: text,
+                    duration: duration
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                startSession(data);
+            } else {
+                alert('Error: ' + data.error);
+                this.disabled = false;
+                this.innerText = "Start Locked Session";
+            }
+        } catch (e) {
+            alert('Error: ' + e);
+            this.disabled = false;
+            this.innerText = "Start Locked Session";
+        }
+    });
+
+    function startSession(data) {
+        document.getElementById('setup-area').style.display = 'none';
+        document.getElementById('active-session').style.display = 'block';
+        document.getElementById('unlock-question').innerText = data.question;
+
+        let timeLeft = data.duration * 60;
+        updateTimerDisplay(timeLeft);
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerDisplay(timeLeft);
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                alert("Session Complete! Great job.");
+                location.reload();
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        document.getElementById('timer-display').innerText =
+            `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    document.getElementById('unlock-btn').addEventListener('click', async function () {
+        const answer = document.getElementById('unlock-answer').value;
+        const msg = document.getElementById('unlock-msg');
+
+        try {
+            const response = await fetch('/check_unlock', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answer: answer })
+            });
+
+            const data = await response.json();
+
+            if (data.correct) {
+                clearInterval(timerInterval);
+                alert("🎉 Correct! Session Unlocked.");
+                location.reload();
+            } else {
+                msg.innerText = "Incorrect. Keep studying!";
+                msg.style.color = "#ff9a9e";
+            }
+        } catch (e) {
+            alert("Error checking answer");
+        }
+    });
+</script>
+{% endblock %}
